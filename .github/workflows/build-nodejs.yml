@@ -12,9 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout Code
-      uses: actions/checkout@v3
-      with:
-          ref: ${{ github.event.pull_request.merge_commit_sha }}
+      uses: actions/checkout@v3       
     - name: Setup Nod Version
       uses: actions/setup-node@v3
       with:
@@ -26,9 +24,11 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    if: contains( github.event.head_commit.message, 'release' )
     steps:
       - uses: rymndhng/release-on-push-action@master
         with:
+          ref: ${{ github.event.pull_request.merge_commit_sha }}
           bump_version_scheme: minor
           tag_prefix: "v"
           release_name: "Release 1.0.0"
