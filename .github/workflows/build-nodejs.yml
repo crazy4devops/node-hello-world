@@ -1,5 +1,5 @@
 
-name: Demo Node CI
+name: Build and Deploy Node HelloWorld
 
 on:
   push:
@@ -10,7 +10,7 @@ on:
        - closed
 
 jobs:
-  build:
+  build-code:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout Code
@@ -22,7 +22,8 @@ jobs:
     - name: Build Code
       run: npm install
 
-  release-on-push:
+  release-on-pullrequest:
+    needs: build-code
     runs-on: ubuntu-latest
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -35,8 +36,8 @@ jobs:
           release_name: "Release 1.0.0"
           use_github_release_notes: true
 
-  deploy-on-pr-merged:
-    needs: release-on-push
+  deploy-on-pr-merged-and-release:
+    needs: release-on-pullrequest
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     environment: dev
