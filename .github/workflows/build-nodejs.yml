@@ -1,23 +1,54 @@
-# This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
-# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
 
-name: Node.js CI
+name: Demo Node CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "test" ]
   pull_request:
     branches: [ "main" ]
+    types: 
+       - closed
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-    
     steps:
-    - uses: actions/checkout@v3
-    - uses: actions/setup-node@v3
+    - name: Checkout Code
+      uses: actions/checkout@v3       
+    - name: Setup Nod Version
+      uses: actions/setup-node@v3
       with:
         node-version: 16
-    - run: npm install
- 
+    - name: Build Code
+      run: npm install
+
+  release-on-push:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: rymndhng/release-on-push-action@master
+        with:
+          bump_version_scheme: minor
+          tag_prefix: "v"
+          release_name: "Release 1.0.0"
+          use_github_release_notes: true
+
+  deploy-on-pr-merged:
+    needs: release-on-push
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    environment: dev
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3       
+      - name: Setup Nod Version
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - name: Build Code
+        run: npm install
+      - name: deploy to dev
+        run: echo deploying code to dev
+      
