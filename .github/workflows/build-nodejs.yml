@@ -6,6 +6,8 @@ on:
     branches: [ "test" ]
   pull_request:
     branches: [ "main" ]
+    types: 
+       - closed
 
 jobs:
   build:
@@ -24,7 +26,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    # if: contains( github.event.head_commit.message, 'release' )
     if: github.event_name == 'pull_request'
     steps:
       - uses: rymndhng/release-on-push-action@master
@@ -33,4 +34,21 @@ jobs:
           tag_prefix: "v"
           release_name: "Release 1.0.0"
           use_github_release_notes: true
- 
+
+  deploy-on-pr-merged:
+    needs: release-on-push
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    environment: dev
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3       
+      - name: Setup Nod Version
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - name: Build Code
+        run: npm install
+      - name: deploy to dev
+        run: echo deploying code to dev
+      
