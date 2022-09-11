@@ -36,7 +36,7 @@ jobs:
           release_name: "Release 1.0.0"
           use_github_release_notes: true
 
-  deploy-on-pr-merged:
+  deploy-on-pr-merged-and-release:
     needs: release-on-pullrequest
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
