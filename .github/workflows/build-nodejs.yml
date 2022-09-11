@@ -22,7 +22,7 @@ jobs:
     - name: Build Code
       run: npm install
 
-  release-on-push:
+  release-on-pullrequest:
     needs: build
     runs-on: ubuntu-latest
     env:
@@ -37,7 +37,7 @@ jobs:
           use_github_release_notes: true
 
   deploy-on-pr-merged:
-    needs: release-on-push
+    needs: release-on-pullrequest
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     environment: dev
